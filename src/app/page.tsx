@@ -1,12 +1,11 @@
-
 import ContentList from './components/ContentList';
 import Image from 'next/image';
 import ToggleFilter from './components/ToggleFilter';
 
-
-
-export default function Home({ searchParams }: any) {
-  const filter = searchParams?.filter || 'serie'
+// In Next.js 16, searchParams è una Promise quindi serve async/await
+export default async function Home({ searchParams }: any) {
+  const params = await searchParams;  // await perché è una Promise
+  const filter = params?.filter || 'tutti';
 
   return (
     <div>
