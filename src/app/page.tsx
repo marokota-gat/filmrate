@@ -6,6 +6,7 @@ import ToggleFilter from './components/ToggleFilter';
 export default async function Home({ searchParams }: any) {
   const params = await searchParams;  // await perché è una Promise
   const filter = params?.filter || 'tutti';
+  const page = Number(params?.page) || 1;
 
   return (
     <div>
@@ -24,7 +25,7 @@ export default async function Home({ searchParams }: any) {
           <div>Generi</div>
         </div>
       </div>
-      <ContentList selector={filter} />
+      <ContentList selector={filter} page={page} />
     </div>
   );
 }
