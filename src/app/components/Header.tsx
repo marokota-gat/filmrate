@@ -1,9 +1,38 @@
+'use client';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useState, useEffect } from 'react';
+import { signOut, useSession } from 'next-auth/react';
 
 export default function Header() {
+  const session = useSession();
+  console.log(session);
+
+
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    let lastScroll = 0;
+    const handleScroll = () => {
+      const current = window.scrollY;
+
+      if (current < 50) {
+        setHidden(false);
+        lastScroll = current;
+        return;
+      }
+      if (current > lastScroll) {
+        setHidden(true);
+      } else {
+        setHidden(false);
+      }
+      lastScroll = current;
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <header className="flex h-[70px] w-full items-center border-b-[1px] border-black/10 bg-white/60">
+    <header className={`fixed z-50 flex h-[70px] w-full backdrop-blur-md items-center border-b-[1px] border-black/10 bg-white/60 transition-transform duration-300 ${hidden ? "-translate-y-full" : "translate-y-0"}`}>
       <div className="flex h-[36px] w-full items-center justify-between px-4 sm:px-8 md:px-16 lg:px-24 xl:px-[200px]">
         {/* Logo */}
         <Link href="/" className="flex items-center">
@@ -49,16 +78,26 @@ export default function Header() {
             </p>
           </Link>
 
-          {/* Sign in button */}
-          <Link
-            href="/signin"
-            className="flex h-[36px] items-center justify-center rounded-[8px] bg-black px-3 sm:w-[100px]"
-          >
-            <Image src="/SignInIcon.svg" alt="Sign in" width={16} height={16} />
-            <p className="hidden pl-4 text-[14px] font-medium text-[#fff] sm:block">
-              Accedi
-            </p>
-          </Link>
+          {/* Sign In / SignOut button */}
+          {session?.data && (
+            <Link href="/profile">profile</Link>
+          )}
+          {session?.data ? (
+            <Link href="#"
+              className="flex h-[36px] items-center justify-center rounded-[8px] bg-white px-3 sm:w-[100px]border border-black/10  transition-all duration-200 hover:bg-black/10"
+
+              onClick={() => signOut({ callbackUrl: '/' })}>Sign Out</Link>
+          ) : (
+            <Link
+              href="/api/auth/signin"
+              className="flex h-[36px] items-center justify-center rounded-[8px] bg-black px-3 sm:w-[100px]"
+            >
+              <Image src="/SignInIcon.svg" alt="Sign in" width={16} height={16} />
+              <p className="hidden pl-4 text-[14px] font-medium text-[#fff] sm:block">
+                Accedi
+              </p>
+            </Link>
+          )}
         </div>
       </div>
     </header>

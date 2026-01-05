@@ -17,7 +17,7 @@ export default function PageList({ page }: { page: number }) {
 
 
     return (
-        <div className='flex justify-center items-center text-center gap-2 border border-black/10 rounded-[8px] p-2 max-w-[270px] mt-4'>
+        <div className='flex justify-center items-center text-center gap-2 border border-black/10 rounded-[8px] p-2 max-w-[270px] mt-5'>
             {pageList.map((pageNumber) => (
                 <button
                     type="button"

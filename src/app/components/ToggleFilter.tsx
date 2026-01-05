@@ -1,7 +1,8 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ViewTransition } from "react";
+
+import { startTransition, ViewTransition } from "react";
 
 
 const optionsToggle = [
@@ -15,25 +16,30 @@ export default function ToggleFilter({ value }: { value: string }) {
   const searchParams = useSearchParams();
 
   const handleClick = (id: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('filter', id);
-    router.push(`?${params.toString()}`, { scroll: false });
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('filter', id);
+      router.push(`?${params.toString()}`, { scroll: false });
+    });
   };
 
   return (
-    <div className="flex h-9 w-[190px] justify-center items-center  rounded-[14px] bg-[#ECECF0] p-1">
-      {/* Bottoni */}
+    <div className="flex h-9 w-[190px] items-center justify-center rounded-[14px] bg-[#ECECF0] p-1">
       {optionsToggle.map((opt) => (
         <button
           type="button"
           key={opt.id}
-          className={`flex rounded-[14px] px-[10px] text-[15px] transition-colors duration-200 ${value === opt.id ? 'white' : 'hover:white'}`}
+          className={`flex rounded-[14px] px-[10px] py-1 text-[14px] transition-all duration-200 ${value === opt.id
+            ? 'bg-white text-black shadow-sm'
+            : 'text-gray-600 hover:text-black'
+            }`}
           onClick={() => handleClick(opt.id)}
         >
-          {opt.label}
+          <ViewTransition>
+            <div className='text-[14px]'>{opt.label}</div>
+          </ViewTransition>
         </button>
       ))}
-
     </div>
   );
 }
