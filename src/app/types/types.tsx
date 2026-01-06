@@ -43,3 +43,14 @@ export interface All {
   name: string;
   first_air_date: string;
 }
+
+export interface User {
+  avatarPath: string;
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+  created_at: string;
+  updated_at: string;
+  token: string;
+}

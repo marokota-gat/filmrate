@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { getPosterUrl } from '../lib/api/tmdb';
-import { All } from '../types/content';
+import { All } from '../types/types';
 
 export default function ContentCard({
   poster_path,

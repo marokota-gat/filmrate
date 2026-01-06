@@ -1,4 +1,4 @@
-import { Genre, TvShow, Movie, All } from "@/app/types/content";
+import { Genre, TvShow, Movie, All } from "@/app/types/types";
 import { getGenresMovies, getGenresTvShows, getPopularMovies, getPopularTvShows } from "../api/tmdb";
 
 

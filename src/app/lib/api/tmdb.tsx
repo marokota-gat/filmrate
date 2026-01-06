@@ -1,4 +1,4 @@
-import { Movie, TvShow, Genre } from "@/app/types/content";
+import { Movie, TvShow, Genre } from "@/app/types/types";
 
 const API_READ_ACCESS_TOKEN = process.env.TMDB_ACCESS_TOKEN;
 

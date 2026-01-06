@@ -2,34 +2,82 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { startTransition, ViewTransition } from 'react';
 import { signOut, useSession } from 'next-auth/react';
+import { User } from '../types/types';
+
+const user: User = {
+  avatarPath: '/Avatar.svg',
+  id: 1,
+  name: 'Mario Rossi',
+  email: 'mario.rossi@filmrate.com',
+  password: 'password',
+  created_at: '2021-01-01',
+  updated_at: '2021-01-01',
+  token: 'token'
+};
+
+// Ascolta lo scroll e nasconde il header quando scrolla verso il basso
+function scrollEffect(setHidden: (hidden: boolean) => void) {
+  let lastScroll = 0;
+  const handleScroll = () => {
+    const current = window.scrollY;
+
+    if (current < 50) {
+      setHidden(false);
+      lastScroll = current;
+      return;
+    }
+    if (current > lastScroll) {
+      setHidden(true);
+    } else {
+      setHidden(false);
+    }
+    lastScroll = current;
+  };
+  window.addEventListener('scroll', handleScroll);
+  return () => window.removeEventListener('scroll', handleScroll);
+}
+
+// Handler per il box avatar con le opzioni di profilo e logout
+function avatarHandler(session: any) {
+  return (
+    <ViewTransition>
+      <div className="flex flex-col justify-between absolute top-12 right-15 max-w-[190px] h-[133px] bg-white border border-black/10 rounded-[8px] shadow p-2">
+        <p className="text-[14px] font-medium text-[#0A0A0A]">{session.data?.user?.name}</p>
+        <p className="text-[12px] text-[#717182]">{session.data?.user?.email}</p>
+        <div className="h-[1px] w-[100%] bg-black/10" />
+        <Link className="flex gap-2 items-center" href="/profile">
+          <Image src="/ProfileIcon.svg" alt="Profile" width={16} height={16} />
+          Profile
+        </Link>
+
+        <button className="flex gap-2 items-center" onClick={() => signOut({ callbackUrl: '/' })}>
+          <Image src="/LogoutIcon.svg" alt="Sign Out" width={16} height={16} />
+          Sign Out
+        </button>
+
+      </div>
+    </ViewTransition>
+  )
+}
 
 export default function Header() {
   const session = useSession();
-  console.log(session);
-
-
   const [hidden, setHidden] = useState(false);
+  const [avatarVisible, setAvatarVisible] = useState(false);
+  console.log(session.data);
+  // close avatar when clicking outside the box avatar handler
   useEffect(() => {
-    let lastScroll = 0;
-    const handleScroll = () => {
-      const current = window.scrollY;
+    if (!avatarVisible) return;
+    const close = () => startTransition(() => setAvatarVisible(false));
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, [avatarVisible]);
 
-      if (current < 50) {
-        setHidden(false);
-        lastScroll = current;
-        return;
-      }
-      if (current > lastScroll) {
-        setHidden(true);
-      } else {
-        setHidden(false);
-      }
-      lastScroll = current;
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  // scroll effect
+  useEffect(() => scrollEffect(setHidden), []);
+
 
   return (
     <header className={`fixed z-50 flex h-[70px] w-full backdrop-blur-md items-center border-b-[1px] border-black/10 bg-white/60 transition-transform duration-300 ${hidden ? "-translate-y-full" : "translate-y-0"}`}>
@@ -64,7 +112,7 @@ export default function Header() {
         </div>
 
         {/* Right section */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2 space-x-2">
           {/* Watchlist - solo icona su mobile, testo completo da lg in su */}
           <Link href="/watchlist" className="flex items-center justify-center">
             <Image
@@ -78,15 +126,12 @@ export default function Header() {
             </p>
           </Link>
 
-          {/* Sign In / SignOut button */}
-          {session?.data && (
-            <Link href="/profile">profile</Link>
-          )}
+          {/* Sign Out / SignIn button */}
           {session?.data ? (
-            <Link href="#"
-              className="flex h-[36px] items-center justify-center rounded-[8px] bg-white px-3 sm:w-[100px]border border-black/10  transition-all duration-200 hover:bg-black/10"
-
-              onClick={() => signOut({ callbackUrl: '/' })}>Sign Out</Link>
+            <>
+              <Image className="cursor-pointer rounded-full" src={session.data?.user?.image as string} alt="Avatar" width={32} height={32} onClick={() => startTransition(() => setAvatarVisible(!avatarVisible))} />
+              {avatarVisible && avatarHandler(session)}
+            </>
           ) : (
             <Link
               href="/api/auth/signin"
